@@ -1,0 +1,24 @@
+@import 'tailwindcss';
+
+/* Запущенная с домашнего экрана iPhone страница работает под статус-баром и индикатором «домой»;
+   эти отступы держат контент оттуда (в обычной вкладке браузера они равны 0). */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* немного лишнего места под статус-баром в режиме приложения с домашнего экрана */
+@media (display-mode: standalone) {
+  :root {
+    --safe-top: calc(env(safe-area-inset-top, 0px) + 24px);
+  }
+}
+
+body {
+  @apply bg-zinc-950 text-zinc-100 antialiased;
+  padding-bottom: var(--safe-bottom);
+}
+
+button {
+  @apply cursor-pointer;
+}

@@ -1,0 +1,31 @@
+#!/bin/sh
+# Заготовка init-скрипта kino для Entware. Скопируйте в /opt/etc/init.d/S99kino и сделайте chmod +x.
+
+# Папка приложения на USB-накопителе — реальное имя точки монтирования смотрите командой: ls /tmp/mnt
+APP_DIR=/tmp/mnt/CHANGE_ME/kino
+PORT=3000
+PIDFILE=/opt/var/run/kino.pid
+LOG=/opt/var/log/kino.log
+
+start() {
+  (
+    # USB-накопители монтируются уже после запуска Entware — ждём, пока папка приложения появится
+    i=0
+    while [ ! -f "$APP_DIR/server/index.js" ] && [ $i -lt 60 ]; do sleep 2; i=$((i + 1)); done
+    cd "$APP_DIR" || exit 1
+    PORT=$PORT exec /opt/bin/node server/index.js > "$LOG" 2>&1
+  ) &
+  echo $! > "$PIDFILE"
+}
+
+stop() {
+  [ -f "$PIDFILE" ] && kill "$(cat "$PIDFILE")" 2>/dev/null
+  rm -f "$PIDFILE"
+}
+
+case "$1" in
+  start) start ;;
+  stop) stop ;;
+  restart) stop; sleep 1; start ;;
+  *) echo "Usage: $0 {start|stop|restart}" ;;
+esac
